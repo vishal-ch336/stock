@@ -3,13 +3,14 @@ import { Movement } from '../models/Movement';
 import { Part } from '../models/Part';
 import { inventoryService } from '../services/inventory.service';
 import { validate } from '../middleware/validate';
+import { requireAuth, requireManager } from '../middleware/auth';
 import { createMovementSchema, updateMovementSchema } from '../schemas/movement.schema';
 import { z } from 'zod';
 import { movementsQuerySchema } from '../schemas/common.schema';
 
 const router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', requireAuth, async (req: Request, res: Response) => {
   const query = movementsQuerySchema.parse(req.query);
 
   const filter: any = {};
@@ -48,7 +49,7 @@ router.get('/', async (req: Request, res: Response) => {
   res.json(enriched);
 });
 
-router.post('/', validate(z.object({ body: createMovementSchema })), async (req: Request, res: Response) => {
+router.post('/', requireManager, validate(z.object({ body: createMovementSchema })), async (req: Request, res: Response) => {
   const { partId, type, quantity, ...rest } = req.body;
 
   const result = await inventoryService.processMovement(
@@ -80,7 +81,7 @@ router.post('/', validate(z.object({ body: createMovementSchema })), async (req:
   });
 });
 
-router.patch('/:id', validate(z.object({ body: updateMovementSchema })), async (req: Request, res: Response) => {
+router.patch('/:id', requireManager, validate(z.object({ body: updateMovementSchema })), async (req: Request, res: Response) => {
   const { id } = req.params;
   const updates = req.body;
   

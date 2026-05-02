@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMovementsStore } from "@/stores/useMovementsStore";
-import { useUIStore } from "@/stores/useUIStore";
+import { useManagerMode } from "@/hooks/useManagerMode";
 import { MovementsLog } from "@/components/MovementsLog";
 import { MovementModal } from "@/components/modals/MovementModal";
 import { EditMovementModal } from "@/components/modals/EditMovementModal";
@@ -10,7 +10,7 @@ import { Movement } from "@/types";
 
 export const Movements = () => {
   const { movements, fetchMovements } = useMovementsStore();
-  const { managerMode } = useUIStore();
+  const isManager = useManagerMode();
   const [movementModalOpen, setMovementModalOpen] = useState(false);
   const [movementType, setMovementType] = useState<"PURCHASE" | "SALE" | "ADJUST">("PURCHASE");
   const [editMovementOpen, setEditMovementOpen] = useState(false);
@@ -33,7 +33,7 @@ export const Movements = () => {
             Complete history of inventory transactions
           </p>
         </div>
-        {managerMode && (
+        {isManager && (
           <div className="flex gap-2">
             <Button
               onClick={() => {
@@ -62,7 +62,7 @@ export const Movements = () => {
 
       <MovementsLog
         movements={movements}
-        onEdit={managerMode ? (movement) => {
+        onEdit={isManager ? (movement) => {
           setSelectedMovement(movement);
           setEditMovementOpen(true);
         } : undefined}

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { Part } from '../models/Part';
 import { Movement } from '../models/Movement';
 import { logger } from '../services/stream.service';
+import { requireManager } from '../middleware/auth';
 
 const router = Router();
 
@@ -9,7 +10,7 @@ const router = Router();
  * DELETE /api/data/reset
  * Clears all data from the database (Parts and Movements)
  */
-router.delete('/reset', async (req: Request, res: Response) => {
+router.delete('/reset', requireManager, async (req: Request, res: Response) => {
     try {
         logger.info('Reset data requested');
 

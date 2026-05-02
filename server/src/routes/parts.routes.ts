@@ -3,13 +3,14 @@ import { Movement } from '../models/Movement';
 import { Part } from '../models/Part';
 import { AppError } from '../middleware/error';
 import { validate } from '../middleware/validate';
+import { requireAuth, requireManager } from '../middleware/auth';
 import { createPartSchema, updatePartSchema } from '../schemas/part.schema';
 import { z } from 'zod';
 import { partsQuerySchema } from '../schemas/common.schema';
 
 const router = Router();
 
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', requireAuth, async (req: Request, res: Response) => {
   const query = partsQuerySchema.parse(req.query);
 
   const filter: any = {};
@@ -50,7 +51,7 @@ router.get('/', async (req: Request, res: Response) => {
   res.json(partsWithDerived);
 });
 
-router.get('/:partId', async (req: Request, res: Response) => {
+router.get('/:partId', requireAuth, async (req: Request, res: Response) => {
   const part = await Part.findOne({ partId: req.params.partId });
   if (!part) {
     throw new AppError('Part not found', 404);
@@ -70,7 +71,7 @@ router.get('/:partId', async (req: Request, res: Response) => {
   });
 });
 
-router.post('/', validate(z.object({ body: createPartSchema })), async (req: Request, res: Response) => {
+router.post('/', requireManager, validate(z.object({ body: createPartSchema })), async (req: Request, res: Response) => {
   const part = await Part.create({
     ...req.body,
     inStock: 0,
@@ -88,7 +89,7 @@ router.post('/', validate(z.object({ body: createPartSchema })), async (req: Req
   });
 });
 
-router.patch('/:partId', validate(z.object({ body: updatePartSchema })), async (req: Request, res: Response) => {
+router.patch('/:partId', requireManager, validate(z.object({ body: updatePartSchema })), async (req: Request, res: Response) => {
   const part = await Part.findOneAndUpdate(
     { partId: req.params.partId },
     { $set: req.body },
@@ -113,7 +114,7 @@ router.patch('/:partId', validate(z.object({ body: updatePartSchema })), async (
   });
 });
 
-router.delete('/:partId', async (req: Request, res: Response) => {
+router.delete('/:partId', requireManager, async (req: Request, res: Response) => {
   await Movement.deleteMany({ partId: req.params.partId });
 
   const part = await Part.findOneAndDelete({ partId: req.params.partId });

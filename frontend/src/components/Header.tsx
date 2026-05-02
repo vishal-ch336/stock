@@ -1,11 +1,13 @@
-import { Search, Moon, Sun, ToggleLeft, ToggleRight } from "lucide-react";
+import { Search, Moon, Sun, ShieldCheck } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { UserButton } from "@clerk/clerk-react";
 import { useUIStore } from "@/stores/useUIStore";
+import { useManagerMode } from "@/hooks/useManagerMode";
 
 export const Header = () => {
-  const { darkMode, managerMode, sseConnected, toggleDarkMode, toggleManagerMode } =
-    useUIStore();
+  const { darkMode, toggleDarkMode } = useUIStore();
+  const isManager = useManagerMode();
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
@@ -45,29 +47,14 @@ export const Header = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {!sseConnected && import.meta.env.VITE_API_BASE && (
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-warning/10 text-warning text-xs font-medium">
-              <div className="h-2 w-2 rounded-full bg-warning animate-pulse" />
-              Reconnecting...
+        <div className="flex items-center gap-3">
+          {/* Manager role badge — visible only to managers */}
+          {isManager && (
+            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-500/15 text-amber-500 text-xs font-semibold border border-amber-500/20">
+              <ShieldCheck className="h-3.5 w-3.5" />
+              Manager
             </div>
           )}
-
-          <Button
-            variant={managerMode ? "default" : "outline"}
-            size="sm"
-            onClick={toggleManagerMode}
-            className="gap-2"
-          >
-            {managerMode ? (
-              <ToggleRight className="h-5 w-5" />
-            ) : (
-              <ToggleLeft className="h-5 w-5" />
-            )}
-            <span className="hidden sm:inline font-semibold">
-              {managerMode ? "Manager ON" : "Manager OFF"}
-            </span>
-          </Button>
 
           <Button variant="ghost" size="icon" onClick={toggleDarkMode}>
             {darkMode ? (
@@ -76,8 +63,12 @@ export const Header = () => {
               <Moon className="h-5 w-5" />
             )}
           </Button>
+
+          {/* Clerk user button — shows avatar, profile, and sign-out */}
+          <UserButton afterSignOutUrl="/sign-in" />
         </div>
       </div>
     </header>
   );
 };
+

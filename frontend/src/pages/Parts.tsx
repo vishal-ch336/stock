@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { usePartsStore } from "@/stores/usePartsStore";
-import { useUIStore } from "@/stores/useUIStore";
+import { useManagerMode } from "@/hooks/useManagerMode";
 import { PartsTable } from "@/components/PartsTable";
 import { AddPartModal } from "@/components/modals/AddPartModal";
 import { MovementModal } from "@/components/modals/MovementModal";
@@ -10,7 +10,7 @@ import { Part } from "@/types";
 
 export const Parts = () => {
   const { parts, fetchParts, upsertPart, deletePart } = usePartsStore();
-  const { managerMode } = useUIStore();
+  const isManager = useManagerMode();
   const [addPartOpen, setAddPartOpen] = useState(false);
   const [purchaseOpen, setPurchaseOpen] = useState(false);
   const [saleOpen, setSaleOpen] = useState(false);
@@ -37,7 +37,7 @@ export const Parts = () => {
         onAddPart={() => setAddPartOpen(true)}
         onPurchase={() => setPurchaseOpen(true)}
         onSale={() => setSaleOpen(true)}
-        onAdjust={managerMode ? (part) => {
+        onAdjust={isManager ? (part) => {
           setSelectedPart(part);
           setEditPartOpen(true);
         } : undefined}

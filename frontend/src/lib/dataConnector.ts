@@ -44,6 +44,12 @@ class DataConnector {
   private sseConnection: EventSource | null = null;
   private reconnectAttempts = 0;
   private maxReconnectDelay = 30000;
+  private authToken: string | null = null;
+
+  /** Called from React to inject the Clerk session token before making requests. */
+  setAuthToken(token: string | null) {
+    this.authToken = token;
+  }
 
   constructor() {
     this.checkApiAvailability();
@@ -68,13 +74,14 @@ class DataConnector {
     options: RequestInit = {}
   ): Promise<T> {
     const url = `${BASE_URL}${endpoint}`;
-    const response = await fetch(url, {
-      ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options.headers,
-      },
-    });
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+      ...(options.headers as Record<string, string>),
+    };
+    if (this.authToken) {
+      headers["Authorization"] = `Bearer ${this.authToken}`;
+    }
+    const response = await fetch(url, { ...options, headers });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({
@@ -232,8 +239,14 @@ class DataConnector {
     const formData = new FormData();
     formData.append("file", file);
 
+    const headers: Record<string, string> = {};
+    if (this.authToken) {
+      headers["Authorization"] = `Bearer ${this.authToken}`;
+    }
+
     const response = await fetch(`${BASE_URL}/api/invoices/parse`, {
       method: "POST",
+      headers,
       body: formData,
     });
 

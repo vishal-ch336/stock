@@ -7,6 +7,7 @@ import { config } from './config';
 import { connectDB, disconnectDB } from './db';
 import { errorHandler, AppError } from './middleware/error';
 import { logger } from './services/stream.service';
+import { clerkAuth } from './middleware/auth';
 
 import partsRoutes from './routes/parts.routes';
 import movementsRoutes from './routes/movements.routes';
@@ -24,6 +25,7 @@ app.use(cors({ origin: config.CORS_ORIGIN }));
 app.use(compression());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
+app.use(clerkAuth);
 
 const limiter = rateLimit({
   windowMs: 60 * 1000,

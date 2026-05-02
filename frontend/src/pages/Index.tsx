@@ -10,6 +10,7 @@ import { usePartsStore } from "@/stores/usePartsStore";
 import { useMovementsStore } from "@/stores/useMovementsStore";
 import { useStatsStore } from "@/stores/useStatsStore";
 import { useUIStore } from "@/stores/useUIStore";
+import { AuthTokenSync } from "@/components/AuthTokenSync";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -41,6 +42,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
+      <AuthTokenSync />
       <Header />
 
       <main className="container mx-auto px-4 py-6">

@@ -16,6 +16,7 @@ const configSchema = z.object({
   INVOICE_PARSE_API_URL: z.string().optional(),
   INVOICE_PARSE_API_KEY: z.string().optional(),
   INVOICE_PARSE_API_FORMAT: z.enum(['json', 'multipart']).optional().default('json'),
+  CLERK_SECRET_KEY: z.string().optional(),
 });
 
 export const config = configSchema.parse(process.env);

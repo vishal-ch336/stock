@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useStatsStore } from "@/stores/useStatsStore";
 import { useMovementsStore } from "@/stores/useMovementsStore";
-import { useUIStore } from "@/stores/useUIStore";
+import { useManagerMode } from "@/hooks/useManagerMode";
 import { KPICard } from "@/components/KPICard";
 import { RecentChanges } from "@/components/RecentChanges";
 import { PurchasesSalesChart } from "@/components/PurchasesSalesChart";
@@ -23,7 +23,7 @@ export const Overview = () => {
   const { overview, topSkus, dailyNet, fetchOverview, fetchTopSkus, fetchDailyNet } =
     useStatsStore();
   const { movements, fetchMovements } = useMovementsStore();
-  const { managerMode } = useUIStore();
+  const isManager = useManagerMode();
   const [movementModalOpen, setMovementModalOpen] = useState(false);
   const [movementType, setMovementType] = useState<"PURCHASE" | "SALE">("PURCHASE");
 
@@ -57,7 +57,7 @@ export const Overview = () => {
             Real-time inventory insights and performance metrics
           </p>
         </div>
-        {managerMode && (
+        {isManager && (
           <div className="flex gap-2">
             <Button
               onClick={() => {

@@ -3,10 +3,8 @@ import { persist } from "zustand/middleware";
 
 interface UIState {
   darkMode: boolean;
-  managerMode: boolean;
   sseConnected: boolean;
   toggleDarkMode: () => void;
-  toggleManagerMode: () => void;
   setSSEConnected: (connected: boolean) => void;
 }
 
@@ -14,7 +12,6 @@ export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
       darkMode: false,
-      managerMode: false,
       sseConnected: false,
 
       toggleDarkMode: () => {
@@ -29,17 +26,13 @@ export const useUIStore = create<UIState>()(
         });
       },
 
-      toggleManagerMode: () => {
-        set((state) => ({ managerMode: !state.managerMode }));
-      },
-
       setSSEConnected: (connected) => {
         set({ sseConnected: connected });
       },
     }),
     {
       name: "sungrid-ui-prefs",
-      partialize: (state) => ({ darkMode: state.darkMode, managerMode: state.managerMode }),
+      partialize: (state) => ({ darkMode: state.darkMode }),
     }
   )
 );
@@ -58,3 +51,4 @@ if (typeof window !== 'undefined') {
     }
   }
 }
+

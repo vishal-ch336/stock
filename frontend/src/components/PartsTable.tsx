@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Search, Filter, Download, Plus, Package, ShoppingCart, TrendingUp, Settings, X } from "lucide-react";
-import { useUIStore } from "@/stores/useUIStore";
+import { useManagerMode } from "@/hooks/useManagerMode";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
@@ -38,7 +38,7 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
   const [wattpicsMin, setWattpicsMin] = useState("");
   const [wattpicsMax, setWattpicsMax] = useState("");
   const [stockStatus, setStockStatus] = useState<string[]>([]);
-  const { managerMode } = useUIStore();
+  const isManager = useManagerMode();
 
   // Get unique categories and units
   const uniqueCategories = Array.from(new Set(parts.map(p => p.category).filter(Boolean)));
@@ -203,7 +203,7 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
               Export
             </Button>
 
-            {managerMode && (
+            {isManager && (
               <>
                 {onPurchase && (
                   <Button size="sm" onClick={onPurchase} className="gap-2" variant="default">
