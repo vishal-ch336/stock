@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: sungrid-mongo
+    restart: unless-stopped
+    command:
+      - "--replSet"
+      - "rs0"
+      - "--bind_ip_all"
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./.data/mongo:/data/db
+      - ./.data/mongo-config:/data/configdb
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mongo-init-replica:
+    image: mongo:7
+    container_name: sungrid-mongo-init
+    depends_on:
+      mongo:
+        condition: service_healthy
+    restart: "no"
+    entrypoint:
+      - bash
+      - -c
+      - |
+        sleep 5
+        mongosh --host mongo:27017 --eval "
+          try {
+            rs.status()
+          } catch (err) {
+            rs.initiate({
+              _id: 'rs0',
+              members: [{ _id: 0, host: 'mongo:27017' }]
+            })
+          }
+        "
+    networks:
+      - default
+
+networks:
+  default:
+    name: sungrid-network
+
