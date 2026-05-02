@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsup src/index.ts --format cjs --dts --out-dir dist",
+    "build": "tsup src/index.ts --format esm --dts --out-dir dist",
+    "render-build": "npm install --include=dev && npm run build",
     "start": "node dist/index.js",
     "seed": "tsx src/seed/seed.ts",
     "test": "vitest run",
