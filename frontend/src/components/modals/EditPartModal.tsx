@@ -20,7 +20,9 @@ import {
 import { Part, Unit, PartStatus } from "@/types";
 import { dataConnector } from "@/lib/dataConnector";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Zap } from "lucide-react";
+
+type PowerUnit = "wp" | "kw";
 
 interface EditPartModalProps {
   open: boolean;
@@ -45,6 +47,8 @@ export const EditPartModal = ({ open, onOpenChange, part, onSuccess, onDelete }:
     unitCost: 0,
     taxRate: 5,
     supplier: "",
+    wattpics: "" as number | "",
+    powerUnit: "wp" as PowerUnit,
     status: "ACTIVE" as PartStatus,
   });
 
@@ -60,6 +64,8 @@ export const EditPartModal = ({ open, onOpenChange, part, onSuccess, onDelete }:
         unitCost: part.unitCost || 0,
         taxRate: part.taxRate || 5,
         supplier: part.supplier || "",
+        wattpics: part.wattpics ?? "",
+        powerUnit: (part.powerUnit as PowerUnit) || "wp",
         status: part.status,
       });
     }
@@ -82,6 +88,8 @@ export const EditPartModal = ({ open, onOpenChange, part, onSuccess, onDelete }:
         unitCost: formData.unitCost,
         taxRate: formData.taxRate,
         supplier: formData.supplier,
+        wattpics: typeof formData.wattpics === "number" ? formData.wattpics : undefined,
+        powerUnit: formData.powerUnit,
         status: formData.status,
       });
 
@@ -259,14 +267,63 @@ export const EditPartModal = ({ open, onOpenChange, part, onSuccess, onDelete }:
               />
             </div>
 
+            {/* Power Rating with wp/kw toggle */}
             <div className="col-span-2">
-              <Label htmlFor="supplier">Supplier</Label>
-              <Input
-                id="supplier"
-                value={formData.supplier}
-                onChange={(e) => setFormData({ ...formData, supplier: e.target.value })}
-                placeholder="Supplier name"
-              />
+              <Label className="flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-yellow-500" />
+                Power Rating
+              </Label>
+              <div className="flex gap-2 mt-1.5">
+                <div className="flex rounded-md border overflow-hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, powerUnit: "wp" })}
+                    className={`px-3 py-2 text-xs font-semibold transition-colors ${
+                      formData.powerUnit === "wp"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    wp
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, powerUnit: "kw" })}
+                    className={`px-3 py-2 text-xs font-semibold transition-colors border-l ${
+                      formData.powerUnit === "kw"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    kw
+                  </button>
+                </div>
+                <Input
+                  id="wattpics"
+                  type="number"
+                  value={formData.wattpics}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      wattpics: e.target.value === "" ? "" : parseFloat(e.target.value) || "",
+                    })
+                  }
+                  placeholder={formData.powerUnit === "wp" ? "e.g. 300" : "e.g. 1.5"}
+                  min="0"
+                  step={formData.powerUnit === "wp" ? "1" : "0.001"}
+                  className="flex-1"
+                />
+              </div>
+              {formData.wattpics !== "" && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {formData.wattpics} {formData.powerUnit}
+                  {formData.powerUnit === "kw" && (
+                    <span className="ml-1 text-muted-foreground/60">
+                      ({Number(formData.wattpics) * 1000} wp equivalent)
+                    </span>
+                  )}
+                </p>
+              )}
             </div>
           </div>
 

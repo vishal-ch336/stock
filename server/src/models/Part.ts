@@ -13,6 +13,7 @@ export interface IPart extends Document {
   taxRate?: number;
   supplier?: string;
   wattpics?: number;
+  powerUnit?: 'wp' | 'kw';
   lastMovementAt?: Date;
   createdAt: Date;
   updatedAt: Date;
@@ -77,6 +78,11 @@ const PartSchema = new Schema<IPart>(
     wattpics: {
       type: Number,
       min: 0,
+    },
+    powerUnit: {
+      type: String,
+      enum: ['wp', 'kw'],
+      default: 'wp',
     },
     lastMovementAt: {
       type: Date,

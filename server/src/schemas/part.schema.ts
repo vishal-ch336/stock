@@ -12,6 +12,7 @@ export const createPartSchema = z.object({
   taxRate: z.number().min(0).max(100).optional(),
   supplier: z.string().trim().optional(),
   wattpics: z.number().nonnegative().optional(),
+  powerUnit: z.enum(['wp', 'kw']).optional().default('wp'),
 });
 
 export const updatePartSchema = createPartSchema.partial().omit({ partId: true });

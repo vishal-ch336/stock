@@ -20,13 +20,15 @@ import {
 import { Part, Unit, PartStatus } from "@/types";
 import { dataConnector } from "@/lib/dataConnector";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Zap } from "lucide-react";
 
 interface AddPartModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSuccess?: (part: Part) => void;
 }
+
+type PowerUnit = "wp" | "kw";
 
 export const AddPartModal = ({ open, onOpenChange, onSuccess }: AddPartModalProps) => {
   const [loading, setLoading] = useState(false);
@@ -43,6 +45,7 @@ export const AddPartModal = ({ open, onOpenChange, onSuccess }: AddPartModalProp
     unitCost: 0,
     taxRate: 5,
     wattpics: "" as number | "",
+    powerUnit: "wp" as PowerUnit,
     status: "ACTIVE" as PartStatus,
   });
 
@@ -62,6 +65,7 @@ export const AddPartModal = ({ open, onOpenChange, onSuccess }: AddPartModalProp
         unitCost: formData.unitCost,
         taxRate: formData.taxRate,
         wattpics: typeof formData.wattpics === "number" ? formData.wattpics : undefined,
+        powerUnit: formData.powerUnit,
         status: formData.status,
       });
 
@@ -96,6 +100,7 @@ export const AddPartModal = ({ open, onOpenChange, onSuccess }: AddPartModalProp
       unitCost: 0,
       taxRate: 5,
       wattpics: "",
+      powerUnit: "wp",
       status: "ACTIVE",
     });
   };
@@ -130,7 +135,7 @@ export const AddPartModal = ({ open, onOpenChange, onSuccess }: AddPartModalProp
             </div>
 
             <div>
-              <Label htmlFor="name">company *</Label>
+              <Label htmlFor="name">Company *</Label>
               <Input
                 id="name"
                 value={formData.name}
@@ -150,17 +155,64 @@ export const AddPartModal = ({ open, onOpenChange, onSuccess }: AddPartModalProp
               />
             </div>
 
+            {/* Power Rating Field with wp/kw toggle */}
             <div>
-              <Label htmlFor="wattpics">WattPics (wp)</Label>
-              <Input
-                id="wattpics"
-                type="number"
-                value={formData.wattpics}
-                onChange={(e) => setFormData({ ...formData, wattpics: e.target.value === "" ? "" : parseFloat(e.target.value) || "" })}
-                placeholder="Enter wattage"
-                min="0"
-                step="1"
-              />
+              <Label className="flex items-center gap-1.5">
+                <Zap className="h-3.5 w-3.5 text-yellow-500" />
+                Power Rating
+              </Label>
+              <div className="flex gap-2 mt-1.5">
+                {/* wp / kw segmented toggle */}
+                <div className="flex rounded-md border overflow-hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, powerUnit: "wp" })}
+                    className={`px-3 py-2 text-xs font-semibold transition-colors ${
+                      formData.powerUnit === "wp"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    wp
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, powerUnit: "kw" })}
+                    className={`px-3 py-2 text-xs font-semibold transition-colors border-l ${
+                      formData.powerUnit === "kw"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    kw
+                  </button>
+                </div>
+                <Input
+                  id="wattpics"
+                  type="number"
+                  value={formData.wattpics}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      wattpics: e.target.value === "" ? "" : parseFloat(e.target.value) || "",
+                    })
+                  }
+                  placeholder={formData.powerUnit === "wp" ? "e.g. 300" : "e.g. 1.5"}
+                  min="0"
+                  step={formData.powerUnit === "wp" ? "1" : "0.001"}
+                  className="flex-1"
+                />
+              </div>
+              {formData.wattpics !== "" && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  {formData.wattpics} {formData.powerUnit}
+                  {formData.powerUnit === "kw" && (
+                    <span className="ml-1 text-muted-foreground/60">
+                      ({(Number(formData.wattpics) * 1000)} wp equivalent)
+                    </span>
+                  )}
+                </p>
+              )}
             </div>
           </div>
 

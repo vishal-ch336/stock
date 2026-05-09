@@ -17,6 +17,7 @@ export interface Part {
   taxRate?: number; // Tax rate as percentage (e.g., 18 for 18%)
   supplier?: string;
   wattpics?: number; // WattPics (wp)
+  powerUnit?: 'wp' | 'kw'; // Power rating unit
   lastMovement?: string;
   status: PartStatus;
 }

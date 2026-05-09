@@ -37,6 +37,7 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
   const [selectedUnit, setSelectedUnit] = useState("all");
   const [wattpicsMin, setWattpicsMin] = useState("");
   const [wattpicsMax, setWattpicsMax] = useState("");
+  const [powerFilterUnit, setPowerFilterUnit] = useState<"wp" | "kw">("wp");
   const [stockStatus, setStockStatus] = useState<string[]>([]);
   const isManager = useManagerMode();
 
@@ -56,6 +57,7 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
     const minWp = wattpicsMin ? parseFloat(wattpicsMin) : null;
     const maxWp = wattpicsMax ? parseFloat(wattpicsMax) : null;
     const matchesWattpics =
+      (part.powerUnit ?? "wp") === powerFilterUnit &&
       (!minWp || (part.wattpics !== undefined && part.wattpics >= minWp)) &&
       (!maxWp || (part.wattpics !== undefined && part.wattpics <= maxWp));
 
@@ -85,6 +87,7 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
     setSelectedUnit("all");
     setWattpicsMin("");
     setWattpicsMax("");
+    setPowerFilterUnit("wp");
     setStockStatus([]);
   };
 
@@ -147,7 +150,9 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
       part.category || "-",
       `${part.inStock} / ${part.available}`,
       part.unit,
-      part.wattpics !== undefined && part.wattpics !== null ? part.wattpics.toString() : "-",
+      part.wattpics !== undefined && part.wattpics !== null
+        ? `${part.wattpics} ${part.powerUnit ?? "wp"}`
+        : "-",
       formatCurrency(calculatePartNetWorth(part)),
     ]);
 
@@ -261,25 +266,53 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
               </SelectContent>
             </Select>
 
-            {/* WattPics Range */}
-            <div className="flex gap-2 items-center">
-              <Input
-                type="number"
-                placeholder="Min WP"
-                value={wattpicsMin}
-                onChange={(e) => setWattpicsMin(e.target.value)}
-                className="w-[100px]"
-                min="0"
-              />
-              <span className="text-muted-foreground">-</span>
-              <Input
-                type="number"
-                placeholder="Max WP"
-                value={wattpicsMax}
-                onChange={(e) => setWattpicsMax(e.target.value)}
-                className="w-[100px]"
-                min="0"
-              />
+            {/* Power Filter */}
+            <div className="flex flex-col gap-1.5">
+              <span className="text-xs text-muted-foreground font-medium">Power Range</span>
+              <div className="flex gap-2 items-center">
+                {/* wp / kw unit selector */}
+                <div className="flex rounded-md border overflow-hidden shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => { setPowerFilterUnit("wp"); setWattpicsMin(""); setWattpicsMax(""); }}
+                    className={`px-2.5 py-1.5 text-xs font-semibold transition-colors ${
+                      powerFilterUnit === "wp"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    wp
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setPowerFilterUnit("kw"); setWattpicsMin(""); setWattpicsMax(""); }}
+                    className={`px-2.5 py-1.5 text-xs font-semibold transition-colors border-l ${
+                      powerFilterUnit === "kw"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-background text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    kw
+                  </button>
+                </div>
+                <Input
+                  type="number"
+                  placeholder={`Min ${powerFilterUnit}`}
+                  value={wattpicsMin}
+                  onChange={(e) => setWattpicsMin(e.target.value)}
+                  className="w-[90px]"
+                  min="0"
+                />
+                <span className="text-muted-foreground">–</span>
+                <Input
+                  type="number"
+                  placeholder={`Max ${powerFilterUnit}`}
+                  value={wattpicsMax}
+                  onChange={(e) => setWattpicsMax(e.target.value)}
+                  className="w-[90px]"
+                  min="0"
+                />
+              </div>
             </div>
 
             {/* Clear Filters */}
@@ -334,7 +367,7 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
                 <TableHead className="font-semibold">Category</TableHead>
                 <TableHead className="font-semibold text-right">Stock / Available</TableHead>
                 <TableHead className="font-semibold">Unit</TableHead>
-                <TableHead className="font-semibold text-right">WattPics (wp)</TableHead>
+                <TableHead className="font-semibold text-right">Power Rating</TableHead>
                 <TableHead className="font-semibold text-right">Net Worth</TableHead>
                 {onAdjust && <TableHead className="font-semibold">Actions</TableHead>}
               </TableRow>
@@ -372,7 +405,16 @@ export const PartsTable = ({ parts, onAddPart, onPurchase, onSale, onAdjust }: P
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right font-medium">
-                    {part.wattpics !== undefined && part.wattpics !== null ? part.wattpics : "-"}
+                    {part.wattpics !== undefined && part.wattpics !== null ? (
+                      <span className="inline-flex items-center gap-1">
+                        {part.powerUnit === "kw"
+                          ? part.wattpics.toFixed(3).replace(/\.?0+$/, "")
+                          : part.wattpics}
+                        <span className="text-xs bg-muted px-1.5 py-0.5 rounded font-mono">
+                          {part.powerUnit ?? "wp"}
+                        </span>
+                      </span>
+                    ) : ("-")}
                   </TableCell>
                   <TableCell className="text-right font-semibold text-primary">
                     {formatCurrency(calculatePartNetWorth(part))}
