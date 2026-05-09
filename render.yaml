@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: sungrid-api
+    env: node
+    rootDir: server
+    buildCommand: npm run render-build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # These variables will be created in the Render dashboard, but their values
+      # won't be synced to version control for security.
+      - key: MONGO_URI
+        sync: false
+      - key: CLERK_SECRET_KEY
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
