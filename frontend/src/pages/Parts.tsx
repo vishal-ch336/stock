@@ -48,7 +48,6 @@ export const Parts = () => {
         onOpenChange={setAddPartOpen}
         onSuccess={(part) => {
           upsertPart(part);
-          fetchParts();
         }}
       />
 
