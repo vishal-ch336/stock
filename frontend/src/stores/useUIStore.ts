@@ -4,8 +4,10 @@ import { persist } from "zustand/middleware";
 interface UIState {
   darkMode: boolean;
   sseConnected: boolean;
+  tokenReady: boolean;
   toggleDarkMode: () => void;
   setSSEConnected: (connected: boolean) => void;
+  setTokenReady: (ready: boolean) => void;
 }
 
 export const useUIStore = create<UIState>()(
@@ -13,6 +15,7 @@ export const useUIStore = create<UIState>()(
     (set) => ({
       darkMode: false,
       sseConnected: false,
+      tokenReady: false,
 
       toggleDarkMode: () => {
         set((state) => {
@@ -28,6 +31,10 @@ export const useUIStore = create<UIState>()(
 
       setSSEConnected: (connected) => {
         set({ sseConnected: connected });
+      },
+
+      setTokenReady: (ready) => {
+        set({ tokenReady: ready });
       },
     }),
     {

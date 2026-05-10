@@ -11,13 +11,14 @@ import { useMovementsStore } from "@/stores/useMovementsStore";
 import { useStatsStore } from "@/stores/useStatsStore";
 import { useUIStore } from "@/stores/useUIStore";
 import { AuthTokenSync } from "@/components/AuthTokenSync";
+import { Loader2 } from "lucide-react";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const { upsertPart } = usePartsStore();
   const { prependMovement } = useMovementsStore();
   const { fetchOverview } = useStatsStore();
-  const { setSSEConnected } = useUIStore();
+  const { setSSEConnected, tokenReady } = useUIStore();
 
   useEffect(() => {
     const disconnect = dataConnector.connectSSE((event) => {
@@ -46,30 +47,36 @@ const Index = () => {
       <Header />
 
       <main className="container mx-auto px-4 py-6">
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full max-w-md grid-cols-4 mb-8">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="parts">Parts</TabsTrigger>
-            <TabsTrigger value="movements">Movements</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        {!tokenReady ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full max-w-md grid-cols-4 mb-8">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="parts">Parts</TabsTrigger>
+              <TabsTrigger value="movements">Movements</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="overview">
-            <Overview />
-          </TabsContent>
+            <TabsContent value="overview">
+              <Overview />
+            </TabsContent>
 
-          <TabsContent value="parts">
-            <Parts />
-          </TabsContent>
+            <TabsContent value="parts">
+              <Parts />
+            </TabsContent>
 
-          <TabsContent value="movements">
-            <Movements />
-          </TabsContent>
+            <TabsContent value="movements">
+              <Movements />
+            </TabsContent>
 
-          <TabsContent value="settings">
-            <Settings />
-          </TabsContent>
-        </Tabs>
+            <TabsContent value="settings">
+              <Settings />
+            </TabsContent>
+          </Tabs>
+        )}
       </main>
     </div>
   );
